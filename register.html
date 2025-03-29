@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Website Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1e1e2f;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ff6f61;
+        }
+
+        form {
+            display: inline-block;
+            background-color: #2c2c3e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            max-width: 300px;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+            color: #d4d4dc;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #ff6f61;
+            border: none;
+            padding: 10px 20px;
+            color: #ffffff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #ff4c4c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Register to the Game Website</h1>
+    <form id="registrationForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+        <label for="gameid">Game ID:</label>
+        <input type="text" id="gameid" name="gameid" placeholder="Enter your game ID" required>
+
+        <button type="button"  onclick="submitForm() ">Register</button>
+    </form>
+
+    <script>
+        document.body.style.transition = "background-color 0.5s ease";
+
+        function changeBackgroundColor() {
+            const colors = ["#1e1e2f", "#2a2a40", "#33334f", "#40405f"];
+            const randomIndex = Math.floor(Math.random() * colors.length);
+            document.body.style.backgroundColor = colors[randomIndex];
+        }
+
+        setInterval(changeBackgroundColor, 2000);
+
+        function submitForm() {
+            const username = document.getElementById('username').value;
+            const gameid = document.getElementById('gameid').value;
+
+            if (username && gameid) {
+                alert(`Thanks for registering, ${username} with Game ID: ${gameid}`);
+            } else {
+                alert("Please fill out all fields.");
+            }
+            window.location.href = "homepage.html";
+
+        }
+    </script>
+</body>
+</html>
