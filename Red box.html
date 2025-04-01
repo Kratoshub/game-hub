@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Box Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            color: #ffffff;
+            margin: 0;
+            background-color: #121212;
+        }
+
+        header {
+            background-color: #1e1e2f;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            color: #ff6f61;
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            background-color: #2c2c3e;
+            border: 2px solid #ff6f61;
+        }
+
+        #refreshButton {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #ffffff;
+            background-color: #ff6f61;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #refreshButton:hover {
+            background-color: #ff4c4c;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            color: #ffffff;
+            background-color: #ff6f61; /* Updated button background color */
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ff4c4c; /* Updated button hover effect */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Red Box Challenge</h1>
+    </header>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <button id="refreshButton" onclick="location.reload()">Restart</button>
+    <button onclick="window.location.href='games.html'">Back</button>
+    <footer>
+        <p>&copy; 2025 Siva Balaji Pilla</p>
+    </footer>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let mario = { x: 0, y: 0, width: 30, height: 30, speed: 4, isJumping: false, jumpSpeed: 0 };
+        let gravity = 0.5;
+        let platforms = [];
+        let flags = {};
+        let scrollOffset = 0;
+        let gameStatus = '';
+        let rightPressed = false;
+        let leftPressed = false;
+
+        // Generate random platforms at the beginning only
+        function initializePlatforms() {
+            let x = 0;
+            for (let i = 0; i < 50; i++) { // Platform count is 50
+                const width = Math.floor(Math.random() * 80) + 70;
+                const height = 10;
+                const y = Math.floor(Math.random() * 100) + 250;
+                platforms.push({ x, y, width, height });
+                x += Math.floor(Math.random() * 120) + 100;
+            }
+
+            flags.start = { x: platforms[0].x + 10, y: platforms[0].y - 40 };
+            flags.end = { x: platforms[platforms.length - 1].x + 50, y: platforms[platforms.length - 1].y - 40 };
+        }
+
+        function initializeLevel() {
+            mario.isJumping = false;
+            mario.jumpSpeed = 0;
+            mario.x = platforms[0].x + 20;
+            mario.y = platforms[0].y - mario.height;
+
+            scrollOffset = 0;
+            rightPressed = false;
+            leftPressed = false;
+            gameStatus = '';
+        }
+
+        // Platforms are initialized once
+        initializePlatforms();
+        initializeLevel();
+
+        document.addEventListener("keydown", keyDownHandler);
+        document.addEventListener("keyup", keyUpHandler);
+
+        function keyDownHandler(e) {
+            if (e.key === "ArrowRight") rightPressed = true;
+            if (e.key === "ArrowLeft") leftPressed = true;
+            if (e.key === " " && !mario.isJumping) {
+                mario.isJumping = true;
+                mario.jumpSpeed = -10;
+            }
+        }
+
+        function keyUpHandler(e) {
+            if (e.key === "ArrowRight") rightPressed = false;
+            if (e.key === "ArrowLeft") leftPressed = false;
+        }
+
+        function moveMario() {
+            if (rightPressed) {
+                mario.x += mario.speed;
+                scrollOffset += mario.speed;
+            }
+            if (leftPressed && mario.x > 0) {
+                mario.x -= mario.speed;
+                scrollOffset -= mario.speed;
+            }
+
+            if (mario.isJumping || mario.y < canvas.height) {
+                mario.y += mario.jumpSpeed;
+                mario.jumpSpeed += gravity;
+
+                if (mario.y > canvas.height) {
+                    gameStatus = 'Game Over: there is an end . You failed.';
+                    return;
+                }
+            }
+
+            for (let platform of platforms) {
+                if (
+                    mario.x + mario.width > platform.x &&
+                    mario.x < platform.x + platform.width &&
+                    mario.y + mario.height > platform.y &&
+                    mario.y + mario.height - mario.jumpSpeed <= platform.y
+                ) {
+                    mario.y = platform.y - mario.height;
+                    mario.isJumping = false;
+                    mario.jumpSpeed = 0;
+                }
+            }
+
+            if (
+                mario.x + mario.width >= flags.end.x &&
+                mario.y + mario.height >= flags.end.y
+            ) {
+                gameStatus = 'Game Completed: you are the best.';
+            }
+        }
+
+        function drawMario() {
+            ctx.fillStyle = "#ff6f61";
+            ctx.fillRect(mario.x - scrollOffset, mario.y, mario.width, mario.height);
+        }
+
+        function drawPlatforms() {
+            ctx.fillStyle = "#a9e7b6";
+            for (let platform of platforms) {
+                ctx.fillRect(platform.x - scrollOffset, platform.y, platform.width, platform.height);
+            }
+        }
+
+        function drawFlags() {
+            ctx.fillStyle = "#ff6f61";
+            ctx.fillRect(flags.start.x - scrollOffset, flags.start.y, 20, 40);
+            ctx.fillRect(flags.end.x - scrollOffset, flags.end.y, 20, 40);
+        }
+
+        function drawGameStatus() {
+            if (gameStatus) {
+                ctx.font = "30px Arial";
+                ctx.fillStyle = "#ffffff";
+                ctx.textAlign = "center";
+                ctx.fillText(gameStatus, canvas.width / 2, canvas.height / 2);
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlatforms();
+            drawFlags();
+            drawMario();
+            drawGameStatus();
+            if (!gameStatus) moveMario();
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+</html>
